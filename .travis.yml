@@ -8,8 +8,8 @@ before_script:
 - chmod a+x ~/bin/repo
 - git config --global color.ui false
 - mkdir -p $HOME/twrp && cd $HOME/twrp
-- ~/bin/repo init -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1
-- travis_wait 50 ~/bin/repo sync -q
+- ~/bin/repo init --depth=1 -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1
+- travis_wait 50 ~/bin/repo sync -q -c -j$(nproc --all)
 - git clone https://github.com/the-hardware-lab/twrp_samsung_fortunave3g.git $HOME/twrp/device/samsung/fortunave3g
 script:
   #Replacing PWD=/proc/self/cwd with empty string, as it is causing build to stop in travis ubuntu
