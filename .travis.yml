@@ -31,6 +31,8 @@ script:
     docker run --rm -i -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) -v "$(pwd):/home/builder/twrp/:rw,z" -v "${HOME}/.ccache:/srv/ccache:rw,z" fr3akyphantom/droid-builder bash << EOF
     cd /home/builder/twrp/
     source build/envsetup.sh
+    export CFLAGS="-Wno-error"
+    export CXXFLAGS="-Wno-error"
     # Choose build flavor as "eng" or "userdebug"
     lunch omni_fortunave3g-eng
     make -j$(nproc --all) recoveryimage
