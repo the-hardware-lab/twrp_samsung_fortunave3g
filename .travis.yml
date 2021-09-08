@@ -1,5 +1,7 @@
+os: linux
 dist: bionic
 sudo: required
+language: generic
 before_install:
   - sudo apt-get update
   - sudo apt-get -y install git ccache git-core automake lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib python-networkx libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libc6-dev linux-libc-dev gcc-multilib g++-5-multilib libssl-dev python openjdk-8-jdk android-tools-adb
@@ -8,8 +10,8 @@ before_script:
   - chmod a+x ~/bin/repo
   - git config --global color.ui false
   - mkdir -p $HOME/twrp && cd $HOME/twrp
-  - ~/bin/repo init -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1 # --depth=1
-  - travis_wait 50 ~/bin/repo sync -q -j$(nproc --all) # -c
+  - ~/bin/repo init -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-9.0 --depth=1
+  - travis_wait 50 ~/bin/repo sync -q -j$(nproc --all) -c
   - git clone https://github.com/the-hardware-lab/twrp_samsung_fortunave3g.git $HOME/twrp/device/samsung/fortunave3g
 script:
   #Replacing PWD=/proc/self/cwd with empty string, as it is causing build to stop in travis ubuntu
