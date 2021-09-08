@@ -1,31 +1,35 @@
-os: linux
 dist: bionic
-language: generic
 sudo: required
-git:
-  depth: 1
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install git ccache git-core automake lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib python-networkx libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libc6-dev linux-libc-dev gcc-multilib g++-5-multilib libssl-dev python openjdk-8-jdk android-tools-adb
 before_script:
-  - curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-  - chmod a+x ~/bin/repo
+- curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+- chmod a+x ~/bin/repo
+- git config --global color.ui false
+- mkdir -p $HOME/twrp && cd $HOME/twrp
+- ~/bin/repo init -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1
+- travis_wait 50 ~/bin/repo sync -q
+- git clone https://github.com/the-hardware-lab/twrp_samsung_fortunave3g.git $HOME/twrp/device/samsung/fortunave3g
 script:
-  - mkdir -p $HOME/twrp && cd $HOME/twrp/
-  - repo init --depth=1 -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1
-  - repo sync
-  - git clone https://github.com/the-hardware-lab/twrp_samsung_fortunave3g.git device/samsung/fortunave3g
-  - source build/envsetup.sh
-  - lunch omni_fortunave3g-eng
+  #Replacing PWD=/proc/self/cwd with empty string, as it is causing build to stop in travis ubuntu
+  #Refer: https://discuss.96boards.org/t/aosp-master-wont-build-what-am-i-doing-wrong/3373
+  - sed -i 's/PWD=\/proc\/self\/cwd//g' $HOME/twrp/build/make/core/config.mk && sed -i 's/PWD=\/proc\/self\/cwd//g' $HOME/twrp/build/soong/cc/builder.go
+  - cd $HOME/twrp && export ALLOW_MISSING_DEPENDENCIES=true && source ./build/envsetup.sh && lunch omni_fortunave3g-eng
   - mka recoveryimage
+after_success:
+  - export version=$(cat bootable/recovery/variables.h | grep "define TW_MAIN_VERSION_STR" | cut -d '"' -f2)
+  - cp $HOME/twrp/out/target/product/fortunave3g/recovery.img $HOME/twrp/TWRP-$version-fortunave3g-$(date +"%Y%m%d").img
 deploy:
   skip_cleanup: true
   provider: releases
   api_key: $GitOAUTHToken
   file_glob: true
-  file: $HOME/twrp/out/target/product/fortunave3g/*.img
+  file: $HOME/twrp/*.img
   on:
+    tags: false
+    repo: the-hardware-lab/twrp_samsung_fortunave3g
     branch: master
 branches:
-  only:
-    - master
   except:
     - /^(?i:untagged)-.*$/
-    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
