@@ -4,16 +4,11 @@ language: generic
 sudo: required
 git:
   depth: 1
-addons:
-  apt:
-    update:
-      - true
-    packages:
-      - repo
 before_script:
-  - cd $HOME && mkdir twrp
+  - curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+  - chmod a+x ~/bin/repo
 script:
-  - cd $HOME/twrp/
+  - mkdir -p $HOME/twrp && cd $HOME/twrp/
   - repo init --depth=1 -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1
   - repo sync
   - git clone https://github.com/the-hardware-lab/twrp_samsung_fortunave3g.git device/samsung/fortunave3g
